@@ -17,8 +17,8 @@
       name: 'emission',
       align: 'left',
       label: 'CO2 Emission (g/passenger/km)',
-      field: 'emissionPerKilometer',
-      format: s => Math.floor(s * 1000) + " g"
+      field: 'data',
+      format: s => Math.floor(s[0] * 1000) + " g"
     },
   ]
 
@@ -28,7 +28,7 @@
     query {
       travelMethodInfo {
         name
-        emissionPerKilometer
+        data
       }
     }
   `))

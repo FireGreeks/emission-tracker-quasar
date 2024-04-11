@@ -4,6 +4,7 @@
   import {ref, onMounted, reactive} from 'vue'
   import {date, useQuasar} from "quasar";
   import {deserializeTravelMethod} from "src/js/typesFormatter";
+  import TravelDetails from "components/TravelDetails.vue";
 
   const $q = useQuasar()
 
@@ -104,16 +105,6 @@
     props.expand = !props.expand;
     carouselPages[props.rowIndex * props.pageIndex] = "0";
   }
-  function getTravelMethodIcon(travelMethod) {
-    switch(travelMethod) {
-      case 'AIRPLANE': return 'flight_takeoff';
-      case 'BICYCLE': return  'pedal_bike';
-      case 'BUS': return 'airport_shuttle';
-      case 'TRAIN': case 'SUBWAY': return 'train';
-      default: return 'transportation';
-
-    }
-  }
 
   onMounted(() => {
     // get initial data from server (1st page)
@@ -175,41 +166,24 @@
               {{ col.value }}
             </q-td>
           </q-tr>
-          <q-tr :props="props" v-show="props.expand">
+
+          <q-tr :props="props" v-show="props.expand" v-if="!$q.platform.is.mobile">
             <q-td colspan="100%">
-              <q-carousel
-                v-model="carouselPages[props.rowIndex * props.pageIndex]"
-                transition-prev="scale"
-                transition-next="scale"
-                swipeable
-                animated
-                control-color="black"
-                arrows
-                padding
-                height="70px"
-                class="no-wrap rounded-borders"
-              >
-                <q-carousel-slide
-                  v-for="(stop, index) in props.row.stops"
-                  :key="index"
-                  :name = "index.toString()"
-                  class="row no-wrap items-center justify-between"
-                >
-                  <div class="row inline q-ml-sm items-center">
-                    {{stop["previousPoint"]["label"]}}
-                    <q-icon :name="getTravelMethodIcon(stop['travelMethod'])" class="q-ma-md"/>
-                    {{stop["point"]["label"]}}
-                  </div>
-                  <div class="column no-wrap q-pa-sm" style="width:200px">
-                    <div>Distance:
-                      <span class="data">{{stop["distance"].toFixed(2)}} km</span></div>
-                    <div>Emission:
-                      <span class="data">{{stop["emission"].toFixed(2)}} kg</span></div>
-                  </div>
-                </q-carousel-slide>
-              </q-carousel>
+              <TravelDetails :stops="props.row.stops" :vertical-layout="false" height="70px"/>
             </q-td>
           </q-tr>
+
+          <q-dialog v-model="props.expand" v-if="$q.platform.is.mobile">
+            <q-card>
+              <q-card-section class="q-pa-none text-right ab">
+                <q-btn icon="close" flat round dense v-close-popup />
+              </q-card-section>
+              <q-card-section class="q-pa-none">
+                <TravelDetails :stops="props.row.stops" :vertical-layout="true" height="170px"/>
+              </q-card-section>
+            </q-card>
+
+          </q-dialog>
         </template>
       </q-table>
     </div>
@@ -218,10 +192,5 @@
 </template>
 
 <style scoped>
-  @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
 
-  .data {
-    font-family: "Anton", sans-serif;
-    padding-left: 1rem;
-  }
 </style>
