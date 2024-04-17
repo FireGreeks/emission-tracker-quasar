@@ -85,7 +85,7 @@
     const {page, rowsPerPage, descending} = props.pagination
 
     refetch({
-      page: page,
+      page: page-1,
       count: rowsPerPage,
       descending: descending
     }).then(data => {
