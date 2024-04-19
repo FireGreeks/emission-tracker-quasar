@@ -45,9 +45,13 @@
 
   const { mutate: addTravel, onError } = useMutation(gql(`
       mutation addTravel ($date: LocalDate, $start: WorldPointInput, $stops: [TravelStopInput]) {
-        addTravel(date:$date, start: $start, stops:$stops){
-            distance,
-            emission
+        addTravel(
+          travelDto : {
+            date:$date, start: $start, stops:$stops
+           })
+        {
+          distance,
+          emission
         }
       }
     `))

@@ -3,12 +3,20 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue') },
-      { path: 'new', component: () => import('pages/NewTravel.vue') },
-      { path: 'profile', component: ()=> import('pages/ProfilePage.vue') },
-      { path: 'history', component: () => import('pages/HistoryPage.vue') },
-      { path: 'stats', component: () => import('pages/StatsPage.vue') },
-      { path: 'help', component: () => import('pages/HelpPage.vue') }
+      { path: '', component: () => import('pages/app/IndexPage.vue') },
+      { path: 'new', component: () => import('pages/app/NewTravel.vue') },
+      { path: 'profile', component: ()=> import('pages/app/ProfilePage.vue') },
+      { path: 'history', component: () => import('pages/app/HistoryPage.vue') },
+      { path: 'stats', component: () => import('pages/app/StatsPage.vue') },
+      { path: 'help', component: () => import('pages/app/HelpPage.vue') }
+    ]
+  },
+  {
+    path: '/auth',
+    component: () => import('layouts/LoginRegisterLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/auth/LoginPage.vue') },
+      { path: 'register', component: () => import('pages/auth/RegisterPage.vue') }
     ]
   },
 
@@ -16,7 +24,7 @@ const routes = [
   // but you can also remove it
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue')
+    component: () => import('pages/app/ErrorNotFound.vue')
   }
 ]
 

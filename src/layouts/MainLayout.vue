@@ -30,7 +30,6 @@
             to="/stats"
             exact
           />
-          <q-route-tab label=" "/>
         </q-tabs>
         <q-space></q-space>
       </q-toolbar>
