@@ -5,28 +5,24 @@
   import {onMounted, ref} from "vue";
   import {date} from "quasar";
   import {deserializeTravelMethod} from "src/js/typesFormatter";
+  import {safeRefetch, safeUseQuery} from "src/js/GQL";
 
-  const { refetch } = useQuery(gql(`
-      query getStats ($unit: TimeUnit, $delta: Int!, $separateMethods: Boolean!) {
-        stats(unit: $unit, delta: $delta) {
-          labels
-          emissions(separateMethods: $separateMethods) {
-            name
-            data
-          }
-          distances(separateMethods: false) {
-            name
-            data
-          }
+  const GET_STATS_GQL = gql(`
+    query getStats ($unit: TimeUnit, $delta: Int!, $separateMethods: Boolean!) {
+      stats(unit: $unit, delta: $delta) {
+        labels
+        emissions(separateMethods: $separateMethods) {
+          name
+          data
+        }
+        distances(separateMethods: false) {
+          name
+          data
         }
       }
-    `), {
-    unit: "WEEK",
-    delta: 0,
-    separateMethods: true
-  })
-
-  const {loading, result: overallResult, onResult: onOverallResult, refetch: refetchOverall} = useQuery(gql(`
+    }
+  `)
+  const OVERALL_STATS_GQL = gql(`
     query overallStats {
       overallStats {
         totalEmission
@@ -37,8 +33,15 @@
         methodDistribution
         emissionDistribution
       }
-    }`
-  ))
+    }`)
+
+  const { refetch } = safeUseQuery(GET_STATS_GQL, {
+    unit: "WEEK",
+    delta: 0,
+    separateMethods: true
+  })
+
+  const {loading, error, result: overallResult, onResult: onOverallResult} = safeUseQuery(OVERALL_STATS_GQL)
 
   const chartOptions1 = ref({})
   const series1 = ref([])
@@ -110,12 +113,11 @@
   })
 
   function onRequest() {
-    refetch({
+    safeRefetch(refetch, {
       unit: unit.value,
       delta: delta.value,
       separateMethods: separateMethods.value
     }).then((result) => {
-
       let totalEmissions = [100]
       if (result.data["stats"]["emissions"].length !== 0) {
         totalEmissions = result.data["stats"]["emissions"][0]["data"].map((e, i) =>
@@ -230,16 +232,14 @@
   }
 
   onMounted(() => {
-    // get initial data from server (1st page)
     onRequest({pagination :{page: 1, rowsPerPage:3, descending:true}})
-    refetchOverall()
   })
 
 </script>
 
 <template>
   <q-page class="q-pa-sm">
-    <h2 class="text-center">Emission Statistics</h2>
+    <h2 class="text-center">My Dashboard</h2>
     <h5 class="subtitle text-center">All the stats you will ever need</h5>
 
     <br/>
@@ -267,8 +267,8 @@
               <div style="width: 25%"></div>
               <div style="width:75%">
                 This information is the total of CO2 emission that has been recorded over your total of
-                <b>{{ loading ? '0' : overallResult["overallStats"]["totalTravels"] }} travels</b>; and
-                over a distance of <b>{{ loading ? '0' : overallResult["overallStats"]["totalDistance"].toFixed(2) }}km.</b>
+                <b>{{ loading || error ? '0' : overallResult["overallStats"]["totalTravels"] }} travels</b>; and
+                over a distance of <b>{{ loading || error ? '0' : overallResult["overallStats"]["totalDistance"].toFixed(2) }}km.</b>
               </div>
           </q-card>
         </q-expansion-item>
@@ -309,12 +309,12 @@
       ></apexchart>
 
       <div :class="!$q.platform.is.mobile && 'row'">
-        <apexchart class="col" v-if="loading || overallResult['overallStats']['totalEmission'] !== 0"
+        <apexchart class="col" v-if="!(loading || error || overallResult['overallStats']['totalEmission'] === 0)"
           type="donut"
           :options="overallChartOptionsEmission"
           :series="overallSeriesEmission"
         ></apexchart>
-        <apexchart class="col" v-if="loading || overallResult['overallStats']['totalDistance'] !== 0"
+        <apexchart class="col" v-if="!(loading || error || overallResult['overallStats']['totalDistance'] === 0)"
           type="donut"
           :options="overallChartOptionsMethod"
           :series="overallSeriesMethod"

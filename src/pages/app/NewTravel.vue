@@ -7,6 +7,7 @@
   import MainMap from "components/MainMap.vue";
   import AddressInput from 'components/AdressBar.vue'
   import draggable from "vuedraggable";
+  import {loadingNotification} from "src/js/notificationUtil";
 
   const $q = useQuasar()
   const travelMethodOptions = ref([])
@@ -64,14 +65,10 @@
       stops: stops.value
     })
 
-    const loadingNotification = $q.notify({
-      spinner: true,
-      message: 'Please wait...',
-      timeout: 2000
-    })
+    const loading = loadingNotification("Please Wait...")
 
     newTravel.then((data) => {
-      loadingNotification()
+      loading()
 
       const emission = Math.floor(data.data["addTravel"]["emission"] * 1000)
       $q.notify({

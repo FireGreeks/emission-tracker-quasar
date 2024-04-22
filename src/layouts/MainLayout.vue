@@ -1,3 +1,5 @@
+
+
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header>
@@ -13,21 +15,21 @@
         <q-space></q-space>
         <q-tabs inline-label shrink>
           <q-route-tab
-            icon="home"
-            :label="$q.platform.is.mobile ? void 0 : 'Home'"
-            to="/"
+            icon="insights"
+            :label="$q.platform.is.mobile ? void 0 : 'Stats'"
+            to="/app"
             exact
           />
           <q-route-tab
             icon="add"
             :label="$q.platform.is.mobile ? void 0 : 'New Travel'"
-            to="/new"
+            to="/app/new"
             exact
           />
           <q-route-tab
-            icon="insights"
-            :label="$q.platform.is.mobile ? void 0 : 'Stats'"
-            to="/stats"
+            icon="history"
+            :label="$q.platform.is.mobile ? void 0 : 'History'"
+            to="/app/history"
             exact
           />
         </q-tabs>
@@ -58,16 +60,26 @@
           :size="getMiniValue() ? '45px' : '56px'"
           :class="getMiniValue() ? 'avatarMini' : 'avatarNonMini'"
         >
-          <img src="https://gravatar.com/userimage/114025816/009bda9655cef881348a187f20dfbebb.jpeg?size=256">
+          <img src="~assets/default-profile.jpg" alt="profile picture">
         </q-avatar>
         <div class="bg-transparent q-pa-md">
-          <div class="text-weight-bold text-white">Theodor Bischler</div>
-          <div class="text-white">@theodorbischler</div>
+          <div class="text-weight-bold text-white"> {{ loading || error ? "loading..." : result["profile"]["name"] }} </div>
+          <div class="text-white overflow-hidden">{{ loading || error ? "loading..." : result["profile"]["email"] }}</div>
         </div>
       </div>
 
       <q-list padding>
-        <q-item clickable v-ripple to="/profile">
+        <q-item clickable v-ripple @click="logout()" class="log-out-btn">
+          <q-item-section avatar>
+            <q-icon name="logout"/>
+          </q-item-section>
+
+          <q-item-section>
+            Log Out
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple to="/app/profile">
           <q-item-section avatar>
             <q-icon name="manage_accounts"/>
           </q-item-section>
@@ -77,13 +89,13 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple to="/history">
+        <q-item clickable v-ripple to="/">
           <q-item-section avatar>
-            <q-icon name="history"/>
+            <q-icon name="home"/>
           </q-item-section>
 
           <q-item-section>
-            History
+            Home
           </q-item-section>
         </q-item>
 
@@ -121,41 +133,55 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
-import {useQuasar} from "quasar";
+  import { ref } from 'vue'
+  import EssentialLink from 'components/EssentialLink.vue'
+  import {useQuasar} from "quasar";
+  import {gql} from "@apollo/client/core";
+  import {useQuery} from "@vue/apollo-composable";
+  import {logout} from "src/js/auth";
 
-defineOptions({
-  name: 'MainLayout'
-})
+  defineOptions({
+    name: 'MainLayout'
+  })
 
-const linksList = [
-  {
-    title: 'Facebook',
-    caption: 'Theodor Bischler',
-    icon: 'facebook',
-    link: 'https://www.facebook.com/TheodorBischler/'
-  },
-  {
-    title: 'Instagram',
-    caption: '@theodorbischler',
-    icon: 'instagram',
-    link: 'https://www.instagram.com/theodorbischler/'
+  const linksList = [
+    {
+      title: 'Facebook',
+      caption: 'Theodor Bischler',
+      icon: 'facebook',
+      link: 'https://www.facebook.com/TheodorBischler/'
+    },
+    {
+      title: 'Instagram',
+      caption: '@theodorbischler',
+      icon: 'instagram',
+      link: 'https://www.instagram.com/theodorbischler/'
+    }
+  ]
+
+  const leftDrawerOpen = ref(!useQuasar().platform.is.mobile)
+  const leftDrawerMini = ref(!useQuasar().platform.is.mobile)
+
+  function getMiniValue() {
+    if (useQuasar().platform.is.mobile && window.window < 500)
+      return false;
+    return leftDrawerMini.value;
   }
-]
 
-const leftDrawerOpen = ref(!useQuasar().platform.is.mobile)
-const leftDrawerMini = ref(!useQuasar().platform.is.mobile)
+  function toggleLeftDrawer () {
+    leftDrawerOpen.value = !leftDrawerOpen.value
+  }
 
-function getMiniValue() {
-  if (useQuasar().platform.is.mobile && window.window < 500)
-    return false;
-  return leftDrawerMini.value;
-}
+  const mainGQL = gql(`
+    query mainInformation {
+      profile {
+        email
+        name
+      }
+    }`)
 
-function toggleLeftDrawer () {
-  leftDrawerOpen.value = !leftDrawerOpen.value
-}
+  const {loading, result, onResult, error} = useQuery(mainGQL)
+
 </script>
 
 <style>
@@ -181,5 +207,9 @@ function toggleLeftDrawer () {
   .headerMini {
     height: 50px;
     transition: height .2s;
+  }
+
+  .log-out-btn:hover {
+    background-color: rgba(255, 0, 0, .3);
   }
 </style>

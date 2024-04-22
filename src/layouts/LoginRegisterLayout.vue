@@ -1,6 +1,4 @@
 <script setup>
-
-import EssentialLink from "components/EssentialLink.vue";
 import {date} from "quasar";
 </script>
 
@@ -15,7 +13,7 @@ import {date} from "quasar";
             color="white"
             round
             dense
-            icon="arrow_back"
+            icon="home"
             size="20px"/>
         </q-item-section>
         <q-toolbar-title >
@@ -27,7 +25,10 @@ import {date} from "quasar";
       </q-toolbar>
     </q-header>
 
-    <div class="mainWindow absolute-center">
+    <div class="mainWindow page-container" :class="{
+      'absolute-center': !$q.platform.is.mobile,
+      'mobile': $q.platform.is.mobile
+    }">
       <q-tabs
         dense
         class="bg-grey-2 text-grey-7"
@@ -55,12 +56,17 @@ import {date} from "quasar";
 
 <style scoped>
   .mainWindow {
-    max-width: 500px;
-    width: 700px;
     background-color: #fdfff8;
+    min-width: 200px;
+    max-width: 500px;
+    width: 100%;
   }
 
   .header {
     font-family: "Roboto", sans-serif;
+  }
+
+  .mobile {
+    margin-top: 50px;
   }
 </style>

@@ -1,65 +1,43 @@
 <script setup>
-  import {ref} from 'vue'
-  import {isValidEmail} from "src/js/emailUtil";
-  import {useRoute, useRouter} from "vue-router";
-  import {useMutation} from "@vue/apollo-composable";
-  import {REGISTER, LOGIN} from "src/js/login";
-  import { useQuasar } from 'quasar'
 
-  let $route = useRoute();
-  let $router = useRouter();
+import {checkEmailPasswordError, login, register, storeLoginData} from "src/js/auth";
+import {isValidEmail} from "src/js/regexUtil";
+import {ref} from "vue";
 
-  const email = ref($route.query.e)
-  const username = ref("")
-  const password = ref("")
-  const passwordCopy = ref("")
+const email = ref("")
+const username = ref("")
+const password = ref("")
+const passwordCopy = ref("")
+const isPwd = ref(true)
 
-  const isPwd = ref(true)
+const emailError = ref(false)
+const passwordError = ref(false)
 
-  const {mutate: register} = useMutation(REGISTER);
-  const {mutate: login} = useMutation(LOGIN);
+function autoLogin() {
+  console.log("Auto-login: ")
+  login(email.value, password.value, storeLoginData, checkEmailPassword)
+}
 
-  const $q = useQuasar()
+function checkEmailPassword(e) {
+  return checkEmailPasswordError(e, emailError, passwordError)
+}
 
-  async function onSubmit() {
-    try {
-      const input = {
-        username: username.value,
-        email: email.value,
-        password: password.value
-      }
-
-      const {data: registerData} = await register(input)
-
-      const {data: loginData} = await login(input)
-
-      console.log(loginData)
-      $q.sessionStorage.set("jwt-token", loginData["login"]["token"])
-
-      await $router.push({path: "/"})
-
-    } catch (error) {
-      $q.notify({
-        message: error.toString(),
-        color: "red"
-      })
-    }
-  }
 </script>
 
 <template>
   <div>
-    <h1>Register</h1>
-    <h3>Create a new account in less than 30 seconds! </h3>
+    <h1 class="title-simple">Register</h1>
+    <h3 class="subtitle-simple">Create a new account in less than 30 seconds! </h3>
   </div>
 
   <q-form
-    @submit="onSubmit"
+    @submit="register(email, username, password, autoLogin, checkEmailPassword)"
     class="q-gutter-md q-mt-lg"
   >
     <q-input
       filled
       v-model="email"
+      :error="emailError"
       lazy-rules
       label="E-mail"
       :rules="[
@@ -82,6 +60,7 @@
         class="col q-mr-sm"
         label="Password"
         v-model="password"
+        :error="passwordError"
         lazy-rules
         :rules="[val => val && val.length > 0 || 'Please type your password']"
       />
@@ -117,25 +96,5 @@
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
-h1 {
-  font-family: "Roboto", sans-serif;
-  height: 60px;
-  font-size: 40px;
-  margin-bottom: 0;
-  padding: 0;
-}
-
-h3 {
-  font-size: 15px;
-  color: gray;
-  display: inline;
-  font-family: "Roboto", sans-serif;
-}
-
-.submit {
-  font-family: "Roboto", sans-serif;
-  width: 97%;
-}
 </style>

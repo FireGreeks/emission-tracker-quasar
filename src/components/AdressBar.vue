@@ -70,7 +70,7 @@ import {onMounted, reactive, ref, watch} from 'vue'
     }
     if (value === false) {
       setTimeout(() => {
-        dropdownMenu.value.classList.remove('show');
+        dropdownMenu.value?.classList.remove('show');
       }, 100)
     }
   }
