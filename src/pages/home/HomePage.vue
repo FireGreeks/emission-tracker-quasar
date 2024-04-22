@@ -2,8 +2,10 @@
   import {ref} from "vue";
   import {gql} from "@apollo/client/core";
   import {useQuery} from "@vue/apollo-composable";
+  import {useRouter} from "vue-router";
 
   const isAuthenticated = ref(false)
+  const router = useRouter()
 
   const PROFILE = gql(`
     query profile {
@@ -20,6 +22,7 @@
       isAuthenticated.value = true;
     }
   })
+
 </script>
 
 <template>

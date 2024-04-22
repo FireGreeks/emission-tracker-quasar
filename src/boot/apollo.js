@@ -15,8 +15,8 @@ import {ignoreAuthPathNames} from "src/router";
 export default ({ app, router, store }) => {
 
   let httpLink = createHttpLink({
-    //uri: 'https://emission-tracker-13da3ed8dfae.herokuapp.com/graphql',
-    uri: 'http://localhost:8080/graphql',
+    uri: 'https://emission-tracker-13da3ed8dfae.herokuapp.com/graphql',
+    //uri: 'http://localhost:8080/graphql',
   })
 
   const errorLink = onError((errorResponse) => {

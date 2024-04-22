@@ -41,7 +41,7 @@
     separateMethods: true
   })
 
-  const {loading, error, result: overallResult, onResult: onOverallResult} = safeUseQuery(OVERALL_STATS_GQL)
+  const {loading, error, result: overallResult, onResult: onOverallResult, refetch: refetchOverall} = safeUseQuery(OVERALL_STATS_GQL)
 
   const chartOptions1 = ref({})
   const series1 = ref([])
@@ -232,6 +232,7 @@
   }
 
   onMounted(() => {
+    refetchOverall()
     onRequest({pagination :{page: 1, rowsPerPage:3, descending:true}})
   })
 
