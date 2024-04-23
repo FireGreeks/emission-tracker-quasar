@@ -8,6 +8,7 @@
   import AddressInput from 'components/AdressBar.vue'
   import draggable from "vuedraggable";
   import {loadingNotification} from "src/js/notificationUtil";
+  import {deserializeTravelMethod} from "src/js/typesFormatter";
 
   const $q = useQuasar()
   const travelMethodOptions = ref([])
@@ -21,7 +22,7 @@
   onResult((result) => {
     if (result.loading) return;
 
-    travelMethodOptions.value = result.data["travelMethods"].map(t => t.replace("_", " "));
+    travelMethodOptions.value = result.data["travelMethods"];
   })
 
   const start = ref({
@@ -105,7 +106,7 @@
       point: {
         label: "",
         coordinates: [],
-        category: ""
+        category: "",
       },
       travelMethod: travelMethod,
     })
@@ -210,6 +211,8 @@
                     :options="travelMethodOptions"
                     @update:modelValue="updatePoints()"
                     label="Travel Method*"
+                    lazy-rules
+                    :rules="[val => val !== null || 'Please select a travel method']"
                   />
                   <AddressInput @addressSelect="(s) => onAddressSelect(s, index + 1)"
                     v-model="stops[index].point"

@@ -5,6 +5,8 @@
     ref="searchInput"
     v-model="model.label"
     :label="props.label"
+    lazy-rules
+    :rules="[val => selected || 'Please select from dropdown']"
 
     v-on:update:modelValue="searchAddress()"
     v-on:focusin="onSetFocus(true)"
@@ -47,11 +49,12 @@ import {onMounted, reactive, ref, watch} from 'vue'
 
   watch(suggestions, ()=>setTimeout(calculateDropdownPosition, 100))
 
+  const selected = ref(false)
   const model = defineModel({
     default: {
       label: '',
       coordinates: [],
-      suggestion: {}
+      suggestion: {},
     }
   })
   const emit = defineEmits(['addressSelect'])
@@ -76,6 +79,7 @@ import {onMounted, reactive, ref, watch} from 'vue'
   }
 
   async function searchAddress() {
+    selected.value = false;
     if (model.value.label.length >= 2) {
       Object.assign(suggestions, await getSuggestions(model.value.label))
       dropdownMenu.value.classList.add('show')
@@ -89,6 +93,9 @@ import {onMounted, reactive, ref, watch} from 'vue'
 
     model.value.label = suggestion.label
     model.value.category = suggestion.category;
+
+    selected.value = true;
+    searchInput.value.resetValidation()
 
     model.value.coordinates = await retrieveSuggestionCoordinates(suggestion.mapbox_id)
 
