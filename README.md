@@ -30,6 +30,7 @@ Emission Statistics             |  Adding a new travel
 :-------------------------------:|:-------------------------:
 ![Emission Statistics](https://github.com/FireGreeks/emission-tracker-quasar/blob/master/src/assets/stats.png?raw=true)  |  ![Adding a new travel](https://github.com/FireGreeks/emission-tracker-quasar/blob/master/src/assets/new-travel.png?raw=true)
 
+See [Emission Tracker Backend](https://github.com/FireGreeks/emmision-tracker-spring) repo for more information on the backend server.
 
 ### Built With
 
